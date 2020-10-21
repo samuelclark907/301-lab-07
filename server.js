@@ -20,6 +20,7 @@ app.get('/', (request, response) => {
 
 app.get('/location', locHandler);
 app.get('/weather', weatherHandler);
+app.get('/trails', trailHandler);
 
 
 
@@ -57,6 +58,23 @@ function weatherHandler(req, res) {
     });
 }
 
+function trailHandler(req, res) {
+  // let city = req.query.location;
+  let key = process.env.Trail_API_Key;
+  let lon = req.query.longitude;
+  let lat = req.query.latitude;
+  const URL = `https://www.hikingproject.com/data/get-trails?lat=${lat}&lon=${lon}&maxDistance=10&key=${key}`;
+
+
+  superagent.get(URL)
+    .then(data => {
+      let path = data.body.trails.map(trail => {
+        let newDateTime = trail.conditionDate.split(' ');
+        return new Trails(trail, newDateTime);
+      });
+      res.status(200).json(path);
+    });
+}
 // app.get('/location', (request, response) => {
 //   let city = request.query.city;
 //   let data = require('./data/location.json')[0];
@@ -92,6 +110,19 @@ function Location(city, locationData) {
 function Weather(obj) {
   this.forecast = obj.weather.description;
   this.time = obj.datetime;
+}
+
+function Trails(obj, newDateTime) {
+  this.name = obj.name;
+  this.location = obj.location;
+  this.length = obj.length;
+  this.stars = obj.stars;
+  this.star_votes = obj.starVotes;
+  this.summary = obj.summary;
+  this.trail_url = obj.url;
+  this.conditions = obj.conditionStatus;
+  this.condition_date = newDateTime[0];
+  this.condition_time = newDateTime[1];
 }
 
 app.listen(PORT, () => {
