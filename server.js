@@ -40,6 +40,7 @@ client.connect()
 app.get('/location', locHandler);
 app.get('/weather', weatherHandler);
 app.get('/trails', trailHandler);
+app.get('/movies', moviesHandler);
 
 // app.get('/add', (req, res) => {
 //   const latitude = req.query.latitude;
@@ -138,6 +139,18 @@ function trailHandler(req, res) {
     });
 }
 
+function moviesHandler(city) {
+  let key = process.env.Movies_API_Key;
+  const URL = `https://api.themoviedb.org/3/search/movie?api_key=${key}&language=en-US&query=${city}&page=1&include_adult=false`;
+
+  superagent.get(URL)
+    .then(data => {
+      let movie = data.body.results.map(movies => {
+        
+      })
+    })
+}
+
 
 // app.get('/location', (request, response) => {
 //   let city = request.query.city;
@@ -187,6 +200,15 @@ function Trails(obj, newDateTime) {
   this.conditions = obj.conditionStatus;
   this.condition_date = newDateTime[0];
   this.condition_time = newDateTime[1];
+}
+
+function Movies(obj) {
+  this.title = obj.title;
+  this.overview = obj.overview;
+  this.average_votes = obj.average_votes;
+  this.image_url = obj.image_url;
+  this.popularity = obj.popularity;
+  this.released_on = obj.released_on;
 }
 
 // app.listen(PORT, () => {
