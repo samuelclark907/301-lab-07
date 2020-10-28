@@ -81,7 +81,7 @@ function locHandler(req, res) {
 
         superagent.get(URL)
           .then(data => {
-            let location = new Location(city, data.body[0]);
+            let location = new Local(city, data.body[0]);
             const latitude = location.latitude;
             const longitude = location.longitude;
             const search_query = location.search_query;
@@ -191,7 +191,7 @@ function moviesHandler(req, res) {
 
 
 
-function Location(city, locationData) {
+function Local(city, locationData) {
   this.latitude = locationData.lat;
   this.longitude = locationData.lon;
   this.search_query = city;
