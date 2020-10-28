@@ -71,7 +71,7 @@ function locHandler(req, res) {
   const sqlVals = [city];
   client.query(sqlCheck, sqlVals)
     .then(results => {
-      console.log('HELLLO', results.rows);
+      // console.log('HELLLO', results.rows);
       if (results.rows.length) res.status(200).json(results.rows[0]);
       else {
         const URL = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
@@ -119,7 +119,7 @@ function weatherHandler(req, res) {
     })
     .catch((error) => {
       console.log('error', error);
-      res.status(500).send('Your weather API call did not work!');
+      res.status(500).send('Server Error Weather');
     });
 }
 
@@ -141,7 +141,7 @@ function trailHandler(req, res) {
     })
     .catch((error) => {
       console.log('error', error);
-      res.status(500).send('Your trail API call did not work!');
+      res.status(500).send('Server Error Trail');
     });
 }
 
@@ -153,15 +153,15 @@ function moviesHandler(req, res) {
   superagent.get(URL)
     .then(data => {
       let movie = data.body.results.map(movies => {
-        // console.log(data.body.results);
-        console.log(movie);
+        // console.log(movie);
+        console.log(data.body);
         return new Movies(movies);
       });
       res.status(200).json(movie);
     })
     .catch((error) => {
       console.log('error', error);
-      res.status(500).send('Your movie API call did not work!');
+      res.status(500).send('Server Error Movie');
     });
 }
 
