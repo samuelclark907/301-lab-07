@@ -71,7 +71,7 @@ function locHandler(req, res) {
   const sqlVals = [city];
   client.query(sqlCheck, sqlVals)
     .then(results => {
-      console.log('HELLLO', results.rows);
+      // console.log('HELLLO', results.rows);
       if (results.rows.length) res.status(200).json(results.rows[0]);
       else {
         const URL = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
@@ -116,8 +116,10 @@ function weatherHandler(req, res) {
       });
       // console.log(weatherArr);
       res.status(200).json(weatherArr);
-
-
+    })
+    .catch((error) => {
+      console.log('error', error);
+      res.status(500).send('Server Error Weather');
     });
 }
 
@@ -136,19 +138,31 @@ function trailHandler(req, res) {
         return new Trails(trail, newDateTime);
       });
       res.status(200).json(path);
+    })
+    .catch((error) => {
+      console.log('error', error);
+      res.status(500).send('Server Error Trail');
     });
 }
 
-function moviesHandler(city) {
+function moviesHandler(req, res) {
+  let city = req.query.search_query;
   let key = process.env.Movies_API_Key;
   const URL = `https://api.themoviedb.org/3/search/movie?api_key=${key}&language=en-US&query=${city}&page=1&include_adult=false`;
 
   superagent.get(URL)
     .then(data => {
       let movie = data.body.results.map(movies => {
-        
-      })
+        // console.log(movie);
+        console.log(data.body);
+        return new Movies(movies);
+      });
+      res.status(200).json(movie);
     })
+    .catch((error) => {
+      console.log('error', error);
+      res.status(500).send('Server Error Movie');
+    });
 }
 
 
@@ -205,10 +219,19 @@ function Trails(obj, newDateTime) {
 function Movies(obj) {
   this.title = obj.title;
   this.overview = obj.overview;
-  this.average_votes = obj.average_votes;
-  this.image_url = obj.image_url;
+  this.average_votes = obj.vote_average;
+  this.total_votes = obj.vote_count;
+  this.image_url = obj.poster_path;
   this.popularity = obj.popularity;
-  this.released_on = obj.released_on;
+  this.released_on = obj.released_date;
+}
+
+function Restaurant(obj) {
+  this.name = obj.name;
+  this.image_url = obj.image_url;
+  this.price = obj.price;
+  this.rating = obj.rating;
+  this.url = obj.url;
 }
 
 // app.listen(PORT, () => {
