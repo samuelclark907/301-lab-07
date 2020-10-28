@@ -41,6 +41,7 @@ app.get('/location', locHandler);
 app.get('/weather', weatherHandler);
 app.get('/trails', trailHandler);
 app.get('/movies', moviesHandler);
+app.get('/yelp', resHandler);
 
 // app.get('/add', (req, res) => {
 //   const latitude = req.query.latitude;
@@ -81,7 +82,7 @@ function locHandler(req, res) {
 
         superagent.get(URL)
           .then(data => {
-            let location = new Location(city, data.body[0]);
+            let location = new Local(city, data.body[0]);
             const latitude = location.latitude;
             const longitude = location.longitude;
             const search_query = location.search_query;
@@ -133,6 +134,7 @@ function trailHandler(req, res) {
 
   superagent.get(URL)
     .then(data => {
+      // console.log(data.body);
       let path = data.body.trails.map(trail => {
         let newDateTime = trail.conditionDate.split(' ');
         return new Trails(trail, newDateTime);
@@ -144,7 +146,7 @@ function trailHandler(req, res) {
       res.status(500).send('Server Error Trail');
     });
 }
-
+// const testArr = [];
 function moviesHandler(req, res) {
   let city = req.query.search_query;
   let key = process.env.Movies_API_Key;
@@ -152,17 +154,28 @@ function moviesHandler(req, res) {
 
   superagent.get(URL)
     .then(data => {
+      // console.log(data);
       let movie = data.body.results.map(movies => {
         // console.log(movie);
-        console.log(data.body);
+        console.log(movies);
+        // testArr.push(movies);
         return new Movies(movies);
       });
+      // console.log(testArr);
       res.status(200).json(movie);
     })
     .catch((error) => {
       console.log('error', error);
       res.status(500).send('Server Error Movie');
     });
+}
+
+
+function resHandler(req,res) {
+  let city = req.query.search_query;
+  let key = process.env.Yelp_API_Key;
+
+  const URL = `https://api.yelp.com/v3/businesses/search?location=${city}&term=restaurants&limit=5&offset=5`;
 }
 
 
@@ -191,7 +204,7 @@ function moviesHandler(req, res) {
 
 
 
-function Location(city, locationData) {
+function Local(city, locationData) {
   this.latitude = locationData.lat;
   this.longitude = locationData.lon;
   this.search_query = city;
@@ -221,7 +234,7 @@ function Movies(obj) {
   this.overview = obj.overview;
   this.average_votes = obj.vote_average;
   this.total_votes = obj.vote_count;
-  this.image_url = obj.poster_path;
+  this.image_url = 'https://image.tmdb.org/t/p/w500' + obj.poster_path;
   this.popularity = obj.popularity;
   this.released_on = obj.released_date;
 }
